@@ -179,7 +179,7 @@ function App() {
             <>
               {todos.length > 0 ? (
                 <Box sx={{ mt: 3 }}>
-                  {todos.map(({ text, completed, id, color }) => (
+                  {todos.data.map(({ text, completed, id, color }) => (
                     <Box
                       key={shortid.generate()}
                       sx={{
