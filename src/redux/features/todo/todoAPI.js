@@ -8,24 +8,22 @@ export const todoAPI = apiSlice.injectEndpoints({
     }),
 
     addTodo: builder.mutation({
-      query: (data) => ({
-        url: "/todos",
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+      query: (data) => {
+        return {
+          url: "/todos",
+          method: "POST",
+          body: data,
+        };
+      },
 
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         // update getAssignments cache pessimistically
         try {
           const { data } = await queryFulfilled;
-          const d = {
-            ...data,
-            ...arg,
-          };
 
           dispatch(
             apiSlice.util.updateQueryData("getTodos", undefined, (draft) => {
-              draft.push(d);
+              draft.data.unshift(data.data);
             })
           );
         } catch (error) {
@@ -34,46 +32,22 @@ export const todoAPI = apiSlice.injectEndpoints({
       },
     }),
 
-    changeCompleteStatus: builder.mutation({
-      query: ({ data, id }) => ({
-        url: `/todos/${id}`,
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
-
-      async onQueryStarted({ data, id }, { queryFulfilled, dispatch }) {
-        // update todos cache optimistically
-        const editTodoInstance = dispatch(
-          apiSlice.util.updateQueryData("getTodos", undefined, (draft) => {
-            draft.map((todo) => {
-              if (todo.id == id) {
-                return data;
-              }
-              return todo;
-            });
-          })
-        );
-
-        try {
-          await queryFulfilled;
-        } catch (error) {
-          editTodoInstance.undo();
-        }
-      },
-    }),
-
     deleteTodo: builder.mutation({
-      query: (id) => ({
-        url: `/todos/${id}`,
-        method: "DELETE",
-      }),
+      query: (id) => {
+        console.log(id);
+        return {
+          url: `/todos/${id}`,
+          method: "DELETE",
+        };
+      },
 
       async onQueryStarted(id, { queryFulfilled, dispatch }) {
         // update todos cache optimistically
         const deleteTodoInstance = dispatch(
-          apiSlice.util.updateQueryData("getTodos", undefined, (draft) =>
-            draft.filter((todo) => todo.id != id)
-          )
+          apiSlice.util.updateQueryData("getTodos", undefined, (draft) => {
+            const i = draft.data.findIndex((todo) => todo.id == id);
+            draft.data.splice(i, 1);
+          })
         );
 
         try {
@@ -85,29 +59,30 @@ export const todoAPI = apiSlice.injectEndpoints({
     }),
 
     editTodo: builder.mutation({
-      query: ({ data, id }) => ({
-        url: `/todos/${id}`,
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
+      query: ({ data, id }) => {
+        return {
+          url: `/todos/${id}`,
+          method: "PUT",
+          body: data,
+        };
+      },
 
-      async onQueryStarted({ data, id }, { queryFulfilled, dispatch }) {
-        // update todos cache optimistically
-        const editTodoInstance = dispatch(
-          apiSlice.util.updateQueryData("getTodos", undefined, (draft) => {
-            draft.map((todo) => {
-              if (todo.id == id) {
-                return data;
-              }
-              return todo;
-            });
-          })
-        );
-
+      async onQueryStarted({ id }, { queryFulfilled, dispatch }) {
+        // update todos cache pessimistically
         try {
-          await queryFulfilled;
+          const { data } = await queryFulfilled;
+          dispatch(
+            apiSlice.util.updateQueryData("getTodos", undefined, (draft) => {
+              draft.data.map((todo) => {
+                if (todo.id == id) {
+                  todo.text = data.data.text;
+                }
+                return todo;
+              });
+            })
+          );
         } catch (error) {
-          editTodoInstance.undo();
+          // do nothing
         }
       },
     }),
@@ -117,7 +92,6 @@ export const todoAPI = apiSlice.injectEndpoints({
 export const {
   useGetTodosQuery,
   useAddTodoMutation,
-  useChangeCompleteStatusMutation,
   useDeleteTodoMutation,
   useEditTodoMutation,
 } = todoAPI;

@@ -10,7 +10,6 @@ import {
 import CssBaseline from "@mui/material/CssBaseline";
 import {
   useAddTodoMutation,
-  useChangeCompleteStatusMutation,
   useDeleteTodoMutation,
   useEditTodoMutation,
   useGetTodosQuery,
@@ -37,16 +36,13 @@ const style = {
 function App() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [color, setColor] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [isCompleted, setIsCompleted] = useState(false);
 
   // handle add or edit modal open
   const handleOpen = () => {
     setIsEditMode(false);
     setName("");
-    setColor("");
     setEditId(null);
     setOpen(true);
   };
@@ -67,11 +63,11 @@ function App() {
     { isLoading: isAddTodoLoading, isSuccess: isAddTodoSuccess },
   ] = useAddTodoMutation();
 
-  // this hook for changing complete status of a todo
-  const [changeCompleteStatus] = useChangeCompleteStatusMutation();
-
   // this hook for editing a todo
-  const [editTodo] = useEditTodoMutation();
+  const [
+    editTodo,
+    { isLoading: isEditTodLoading, isSuccess: isEditTodoSuccess },
+  ] = useEditTodoMutation();
 
   // this hook for deleting a todo
   const [deleteTodo] = useDeleteTodoMutation();
@@ -81,32 +77,31 @@ function App() {
     if (isAddTodoSuccess) {
       setOpen(false);
       setName("");
-      setColor("");
     }
   }, [isAddTodoSuccess]);
+
+  useEffect(() => {
+    if (isEditTodoSuccess) {
+      setOpen(false);
+      setName("");
+      setIsEditMode(false);
+      setEditId(null);
+    }
+  }, [isEditTodoSuccess]);
 
   const addANewTodo = () => {
     if (!name) return;
 
     const data = {
       text: name,
-      completed: false,
     };
-
-    if (color) {
-      data.color = { name: color };
-    }
 
     addTodo(data);
   };
 
   const editModeHandler = (id) => {
-    const todo = todos.find((t) => t.id === id);
+    const todo = todos.data.find((t) => t.id === id);
     setName(todo.text);
-    if (todo.color) {
-      setColor(todo.color.name);
-    }
-    setIsCompleted(todo.completed);
     setIsEditMode(true);
     setEditId(id);
     setOpen(true);
@@ -117,19 +112,9 @@ function App() {
 
     const data = {
       text: name,
-      color: null,
-      id: editId,
-      completed: isCompleted,
     };
 
-    if (color) {
-      data.color = { name: color };
-    }
-
     editTodo({ data, id: editId });
-    setOpen(false);
-    setName("");
-    setColor("");
   };
 
   return (
@@ -158,12 +143,6 @@ function App() {
             All Todo Items
           </Typography>
 
-          <Box sx={{ mt: 3 }}>
-            <Button variant="contained" onClick={handleOpen}>
-              Add Todo
-            </Button>
-          </Box>
-
           {getTodosLoading ? (
             <Box
               sx={{
@@ -177,9 +156,14 @@ function App() {
             </Box>
           ) : (
             <>
+              <Box sx={{ mt: 3 }}>
+                <Button variant="contained" onClick={handleOpen}>
+                  Add Todo
+                </Button>
+              </Box>
               {todos?.data?.length > 0 ? (
                 <Box sx={{ mt: 3 }}>
-                  {todos.data.map(({ text, completed, id, color }) => (
+                  {todos.data.map(({ text, completed, id }) => (
                     <Box
                       key={shortid.generate()}
                       sx={{
@@ -196,20 +180,7 @@ function App() {
                         {text}
                       </Typography>
                       <Box>
-                        <Checkbox
-                          checked={completed}
-                          onChange={() => {
-                            changeCompleteStatus({
-                              data: {
-                                id,
-                                text,
-                                completed: !completed,
-                                color,
-                              },
-                              id: id,
-                            });
-                          }}
-                        />
+                        <Checkbox checked={completed} />
                       </Box>
                       <Box sx={{ display: "flex", gap: 2, ml: 3 }}>
                         <EditIcon
@@ -230,7 +201,7 @@ function App() {
                 </Box>
               ) : (
                 <Typography
-                  sx={{ fontWeight: 500, fontSize: 20 }}
+                  sx={{ fontWeight: 500, fontSize: 20, mt: 2 }}
                   component="h1"
                 >
                   Your Todo List is Empty!!
@@ -260,20 +231,13 @@ function App() {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            <TextField
-              fullWidth
-              label="Todo Color"
-              variant="outlined"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-            />
           </Box>
 
           <Box sx={{ mt: 2 }}>
             <LoadingButton
               size="small"
               endIcon={<SendIcon />}
-              loading={isAddTodoLoading}
+              loading={isAddTodoLoading || isEditTodLoading}
               loadingPosition="end"
               variant="contained"
               onClick={isEditMode ? editTheTodo : addANewTodo}
