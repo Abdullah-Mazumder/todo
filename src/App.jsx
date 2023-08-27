@@ -177,7 +177,7 @@ function App() {
             </Box>
           ) : (
             <>
-              {todos.length > 0 ? (
+              {todos?.data?.length > 0 ? (
                 <Box sx={{ mt: 3 }}>
                   {todos.data.map(({ text, completed, id, color }) => (
                     <Box
