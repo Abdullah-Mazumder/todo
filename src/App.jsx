@@ -1,37 +1,14 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  CircularProgress,
-  Modal,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import {
   useAddTodoMutation,
-  useDeleteTodoMutation,
   useEditTodoMutation,
   useGetTodosQuery,
 } from "./redux/features/todo/todoAPI";
 import shortid from "shortid";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
-import LoadingButton from "@mui/lab/LoadingButton";
-import SendIcon from "@mui/icons-material/Send";
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
+import SingleTodoItem from "./components/SingleTodoItem";
+import AddOrEditModal from "./components/AddOrEditModal";
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -68,9 +45,6 @@ function App() {
     editTodo,
     { isLoading: isEditTodLoading, isSuccess: isEditTodoSuccess },
   ] = useEditTodoMutation();
-
-  // this hook for deleting a todo
-  const [deleteTodo] = useDeleteTodoMutation();
 
   // when a new todo is created successfully then reset the form
   useEffect(() => {
@@ -163,40 +137,12 @@ function App() {
               </Box>
               {todos?.data?.length > 0 ? (
                 <Box sx={{ mt: 3 }}>
-                  {todos.data.map(({ text, completed, id }) => (
-                    <Box
+                  {todos.data.map((todo) => (
+                    <SingleTodoItem
+                      editModeHandler={editModeHandler}
+                      todo={todo}
                       key={shortid.generate()}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: 1,
-                      }}
-                    >
-                      <Typography
-                        sx={{ fontWeight: 500, fontSize: 20 }}
-                        component="h1"
-                      >
-                        {text}
-                      </Typography>
-                      <Box>
-                        <Checkbox checked={completed} />
-                      </Box>
-                      <Box sx={{ display: "flex", gap: 2, ml: 3 }}>
-                        <EditIcon
-                          sx={{ cursor: "pointer" }}
-                          onClick={() => {
-                            editModeHandler(id);
-                          }}
-                        />
-                        <DeleteIcon
-                          sx={{ cursor: "pointer" }}
-                          onClick={() => {
-                            deleteTodo(id);
-                          }}
-                        />
-                      </Box>
-                    </Box>
+                    />
                   ))}
                 </Box>
               ) : (
@@ -212,41 +158,17 @@ function App() {
         </Box>
       )}
 
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <Typography
-            id="modal-modal-text"
-            variant="h6"
-            component="h2"
-            sx={{ mb: 2 }}
-          >
-            {isEditMode ? "Edit Todo Item" : "Add Todo Item"}
-          </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              fullWidth
-              label="Todo Name"
-              required
-              variant="outlined"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Box>
-
-          <Box sx={{ mt: 2 }}>
-            <LoadingButton
-              size="small"
-              endIcon={<SendIcon />}
-              loading={isAddTodoLoading || isEditTodLoading}
-              loadingPosition="end"
-              variant="contained"
-              onClick={isEditMode ? editTheTodo : addANewTodo}
-            >
-              <span>{isEditMode ? "Edit Todo" : "Add Todo"}</span>
-            </LoadingButton>
-          </Box>
-        </Box>
-      </Modal>
+      <AddOrEditModal
+        addANewTodo={addANewTodo}
+        editTheTodo={editTheTodo}
+        handleClose={handleClose}
+        isAddTodoLoading={isAddTodoLoading}
+        isEditMode={isEditMode}
+        isEditTodLoading={isEditTodLoading}
+        name={name}
+        open={open}
+        setName={setName}
+      />
     </>
   );
 }
