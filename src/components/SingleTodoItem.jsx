@@ -21,7 +21,14 @@ const SingleTodoItem = ({ todo, editModeHandler }) => {
         borderRadius: "5px",
       }}
     >
-      <Typography sx={{ fontWeight: 500, fontSize: 20 }} component="h1">
+      <Typography
+        sx={{
+          fontWeight: 500,
+          fontSize: 20,
+          textAlign: "start",
+        }}
+        component="h1"
+      >
         {text}
       </Typography>
 
