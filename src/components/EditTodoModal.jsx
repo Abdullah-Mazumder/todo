@@ -15,15 +15,12 @@ const style = {
   p: 4,
 };
 
-const AddOrEditModal = ({
+const EditTodoModal = ({
   handleClose,
-  isEditMode,
   name,
   setName,
-  isAddTodoLoading,
   isEditTodLoading,
   editTheTodo,
-  addANewTodo,
   open,
 }) => {
   return (
@@ -35,7 +32,7 @@ const AddOrEditModal = ({
           component="h2"
           sx={{ mb: 2 }}
         >
-          {isEditMode ? "Edit Todo Item" : "Add Todo Item"}
+          Edit Todo Item
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
@@ -52,12 +49,12 @@ const AddOrEditModal = ({
           <LoadingButton
             size="small"
             endIcon={<SendIcon />}
-            loading={isAddTodoLoading || isEditTodLoading}
+            loading={isEditTodLoading}
             loadingPosition="end"
             variant="contained"
-            onClick={isEditMode ? editTheTodo : addANewTodo}
+            onClick={editTheTodo}
           >
-            <span>{isEditMode ? "Edit Todo" : "Add Todo"}</span>
+            <span>Edit Todo</span>
           </LoadingButton>
         </Box>
       </Box>
@@ -65,4 +62,4 @@ const AddOrEditModal = ({
   );
 };
 
-export default AddOrEditModal;
+export default EditTodoModal;
