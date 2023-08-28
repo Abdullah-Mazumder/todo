@@ -106,6 +106,53 @@ const TodoList = () => {
                 <>
                   {todos?.data?.length > 0 ? (
                     <Box sx={{ mt: 3 }}>
+                      <Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 1,
+                          }}
+                        >
+                          <Typography
+                            sx={{ fontWeight: 900, fontSize: 18 }}
+                            component="h1"
+                          >
+                            Todo Name
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                              ml: 3,
+                            }}
+                          >
+                            <Box>
+                              <Typography
+                                sx={{ fontWeight: 900, fontSize: 18 }}
+                                component="h1"
+                              >
+                                Completed
+                              </Typography>
+                            </Box>
+                            <Typography
+                              sx={{ fontWeight: 900, fontSize: 18 }}
+                              component="h1"
+                            >
+                              Edit
+                            </Typography>
+                            <Typography
+                              sx={{ fontWeight: 900, fontSize: 18 }}
+                              component="h1"
+                            >
+                              Delete
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
                       {todos.data.map((todo) => (
                         <SingleTodoItem
                           editModeHandler={editModeHandler}

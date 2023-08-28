@@ -25,7 +25,7 @@ const SingleTodoItem = ({ todo, editModeHandler }) => {
         {text}
       </Typography>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, ml: 3 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 5, ml: 3 }}>
         <Box>
           <Checkbox checked={completed} disabled />
         </Box>
