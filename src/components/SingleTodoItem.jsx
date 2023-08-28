@@ -13,18 +13,22 @@ const SingleTodoItem = ({ todo, editModeHandler }) => {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "space-between",
         alignItems: "center",
-        gap: 1,
+        border: "1px solid gray",
+        mb: 1,
+        px: 1,
+        borderRadius: "5px",
       }}
     >
       <Typography sx={{ fontWeight: 500, fontSize: 20 }} component="h1">
         {text}
       </Typography>
-      <Box>
-        <Checkbox checked={completed} disabled />
-      </Box>
-      <Box sx={{ display: "flex", gap: 2, ml: 3 }}>
+
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, ml: 3 }}>
+        <Box>
+          <Checkbox checked={completed} disabled />
+        </Box>
         <EditIcon
           sx={{ cursor: "pointer" }}
           onClick={() => {
